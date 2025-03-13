@@ -1,0 +1,12 @@
+[submodule "services/authService"]
+	path = services/authService
+	url = ./services/authService
+[submodule "services/userService"]
+	path = services/userService
+	url = ./services/userService
+[submodule "services/postService"]
+	path = services/postService
+	url = ./services/postService
+[submodule "services/likeService"]
+	path = services/likeService
+	url = ./services/likeService
