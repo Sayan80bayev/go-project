@@ -1,12 +1,12 @@
 [submodule "services/authService"]
 	path = services/authService
-	url = ./services/authService
+	url = https://github.com/Sayan80bayev/authService.git
 [submodule "services/userService"]
 	path = services/userService
-	url = ./services/userService
+	url = https://github.com/Sayan80bayev/userService.git
 [submodule "services/postService"]
 	path = services/postService
-	url = ./services/postService
+	url = https://github.com/Sayan80bayev/postService.git
 [submodule "services/likeService"]
 	path = services/likeService
-	url = ./services/likeService
+	url = https://github.com/Sayan80bayev/likeService.git
