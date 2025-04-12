@@ -37,8 +37,8 @@ It includes services for users, posts, authentication, and (soon) likes.
 ## 📦 Installation
 
 ```bash
-git clone https://github.com/Sayan80bayev/go-social-api.git
-cd go-social-api
+git clone https://github.com/Sayan80bayev/go-project.git
+cd go-project
 docker-compose up
 ```
 
