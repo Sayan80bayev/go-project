@@ -1,0 +1,109 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres
+    container_name: go-project-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: postsdb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - go-project
+
+  minio:
+    image: minio/minio
+    container_name: go-project-minio
+    ports:
+      - "9000:9000"
+      - "9090:9090"
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: admin123
+    command: server /data --console-address ":9090"
+    volumes:
+      - minio-data:/data
+    networks:
+      - go-project
+
+  redis:
+    image: redis:latest
+    container_name: go-project-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - go-project
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: go-project-zookeeper
+    restart: always
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
+      - go-project
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: go-project-kafka
+    restart: always
+    ports:
+      - "9092:9092"     # Внутри docker-сети
+      - "29092:29092"   # Снаружи (host.docker.internal)
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: go-project-zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://go-project-kafka:9092,PLAINTEXT_HOST://host.docker.internal:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    depends_on:
+      - zookeeper
+    networks:
+      - go-project
+
+  postservice:
+    build:
+      context: ./services/postService
+      dockerfile: Dockerfile
+    container_name: postservice
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - kafka
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      PORT: ${PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      ACCESS_KEY: ${ACCESS_KEY}
+      SECRET_KEY: ${SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET}
+      REDIS_ADDR: ${REDIS_ADDR}
+      REDIS_PASS: ${REDIS_PASS}
+      KAFKA_BROKERS: ${KAFKA_BROKERS}
+      KAFKA_TOPIC: ${KAFKA_TOPIC}
+    networks:
+      - go-project
+
+volumes:
+  pgdata:
+    name: 493b09345266be78ebccb208dbc529ff784ed213cfe41aa341c30c5b2ad6a549
+    external: true
+
+  minio-data:
+    name: 0b65a5797e96d6542a3e3b9451975aa22add2999f40b18a4d22bca3654ab5873
+    external: true
+
+networks:
+  go-project:
+    driver: bridge
