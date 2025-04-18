@@ -14,7 +14,18 @@ services:
       - pgdata:/var/lib/postgresql/data
     networks:
       - go-project
-
+  nginx:
+    image: nginx:latest
+    container_name: go-project-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - userservice
+      - postservice
+    networks:
+      - go-project
   minio:
     image: minio/minio
     container_name: go-project-minio
@@ -59,13 +70,62 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: go-project-zookeeper:2181
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://go-project-kafka:9092,PLAINTEXT_HOST://host.docker.internal:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://go-project-kafka:9092,PLAINTEXT_HOST://localhost:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     depends_on:
       - zookeeper
+    networks:
+      - go-project
+
+  authservice:
+    ports:
+      - "8082:8082"
+    build:
+      context: ./services/authService
+      dockerfile: Dockerfile
+    container_name: authservice
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      PORT: 8082
+      JWT_SECRET: ${JWT_SECRET}
+
+    networks:
+      - go-project
+  userservice:
+    ports:
+      - "8081:8081"
+    build:
+      context: ./services/userService
+      dockerfile: Dockerfile
+    container_name: userservice
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - kafka
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      PORT: 8081
+      JWT_SECRET: ${JWT_SECRET}
+      ACCESS_KEY: ${ACCESS_KEY}
+      SECRET_KEY: ${SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      KAFKA_PRODUCER_TOPIC: ${KAFKA_PRODUCER_TOPIC_US}
+      KAFKA_CONSUMER_GROUP: ${KAFKA_CONSUMER_GROUP_US}
+      KAFKA_CONSUMER_TOPICS: ${KAFKA_CONSUMER_TOPICS_US}
+      REDIS_ADDR: ${REDIS_ADDR}
+      REDIS_PASS: ${REDIS_PASS}
+      KAFKA_BROKERS: ${KAFKA_BROKERS}
+      KAFKA_TOPIC: ${KAFKA_TOPIC}
+
     networks:
       - go-project
 
