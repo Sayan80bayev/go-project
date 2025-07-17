@@ -10,10 +10,28 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       POSTGRES_DB: postsdb
-    volumes:
-      - pgdata:/var/lib/postgresql/data
     networks:
       - go-project
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.1
+    container_name: go-project-keycloak
+    command: start-dev
+    ports:
+      - "8082:8080"
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL_HOST: go-project-postgres
+      KC_DB_URL_DATABASE: postsdb
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: password
+    depends_on:
+      - postgres
+    networks:
+      - go-project
+
   nginx:
     image: nginx:latest
     container_name: go-project-nginx
@@ -26,6 +44,7 @@ services:
       - postservice
     networks:
       - go-project
+
   minio:
     image: minio/minio
     container_name: go-project-minio
@@ -51,7 +70,7 @@ services:
       - go-project
 
   zookeeper:
-    image: confluentinc/cp-zookeeper:latest
+    image: confluentinc/cp-zookeeper:7.4.0
     container_name: go-project-zookeeper
     restart: always
     environment:
@@ -60,12 +79,12 @@ services:
       - go-project
 
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.4.0
     container_name: go-project-kafka
     restart: always
     ports:
-      - "9092:9092"     # Внутри docker-сети
-      - "29092:29092"   # Снаружи (host.docker.internal)
+      - "9092:9092"
+      - "29092:29092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: go-project-zookeeper:2181
@@ -80,24 +99,6 @@ services:
     networks:
       - go-project
 
-  authservice:
-    ports:
-      - "8082:8082"
-    build:
-      context: ./services/authService
-      dockerfile: Dockerfile
-    container_name: authservice
-    env_file:
-      - .env
-    depends_on:
-      - postgres
-    environment:
-      DATABASE_URL: ${DATABASE_URL}
-      PORT: 8082
-      JWT_SECRET: ${JWT_SECRET}
-
-    networks:
-      - go-project
   userservice:
     ports:
       - "8081:8081"
@@ -125,7 +126,6 @@ services:
       REDIS_PASS: ${REDIS_PASS}
       KAFKA_BROKERS: ${KAFKA_BROKERS}
       KAFKA_TOPIC: ${KAFKA_TOPIC}
-
     networks:
       - go-project
 
@@ -157,12 +157,7 @@ services:
 
 volumes:
   pgdata:
-    name: 493b09345266be78ebccb208dbc529ff784ed213cfe41aa341c30c5b2ad6a549
-    external: true
-
   minio-data:
-    name: 0b65a5797e96d6542a3e3b9451975aa22add2999f40b18a4d22bca3654ab5873
-    external: true
 
 networks:
   go-project:
