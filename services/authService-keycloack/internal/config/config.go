@@ -28,7 +28,6 @@ func LoadConfig() (*Config, error) {
 		return nil, err
 	}
 
-	// Фолбэк по умолчанию
 	if cfg.Port == "" {
 		cfg.Port = "8082"
 		log.Println("⚠️ PORT не найден, используется значение по умолчанию: 8082")
