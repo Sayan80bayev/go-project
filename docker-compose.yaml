@@ -198,10 +198,25 @@ services:
       KEYCLOAK_CERT_PATH: ${KEYCLOAK_CERT_PATH}
     networks:
       - go-project
+
+  mongodb:
+    image: mongo:6.0
+    container_name: go-project-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - go-project
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongopass
+
 volumes:
   pgdata:
   keycloak-pgdata:
   minio-data:
+  mongo-data:
 
 networks:
   go-project:
