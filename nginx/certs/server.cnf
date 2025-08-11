@@ -1,0 +1,22 @@
+[req]
+default_bits = 2048
+prompt = no
+default_md = sha256
+req_extensions = req_ext
+distinguished_name = dn
+
+[dn]
+C = US
+ST = Local
+L = Dev
+O = GoProject
+CN = go-project-macos.dev
+
+[req_ext]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = go-project-macos.dev
+DNS.2 = localhost
+IP.1 = 10.113.185.39
+IP.2 = 127.0.0.1

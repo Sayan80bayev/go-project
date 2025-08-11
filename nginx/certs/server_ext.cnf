@@ -1,0 +1,10 @@
+basicConstraints=CA:FALSE
+keyUsage = digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = go-project-macos.dev
+DNS.2 = localhost
+IP.1 = 10.113.185.39
+IP.2 = 127.0.0.1
