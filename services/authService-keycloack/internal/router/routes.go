@@ -3,7 +3,6 @@ package router
 import (
 	"auth_service/internal/config"
 	"auth_service/internal/handler"
-	"auth_service/internal/jwks"
 	"auth_service/internal/middleware"
 	"auth_service/pkg/logging"
 	"github.com/gin-gonic/gin"
@@ -11,7 +10,6 @@ import (
 )
 
 func Setup(cfg *config.Config, log *logrus.Logger) *gin.Engine {
-	jwks.Init(cfg, log)
 
 	gin.SetMode(gin.ReleaseMode)
 	gin.DefaultWriter = log.Out
