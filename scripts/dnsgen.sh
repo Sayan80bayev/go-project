@@ -34,8 +34,8 @@ fi
 
 # Generate dnsmasq.conf
 sudo tee "$CONFIG_PATH" > /dev/null <<EOF
-# Map go-project-macos.local to your current IP
-address=/go-project-macos.local/$IP
+# Map go-project-macos.dev to your current IP
+address=/go-project-macos.dev/$IP
 
 # Listen for DNS queries on localhost and your IP
 listen-address=127.0.0.1
