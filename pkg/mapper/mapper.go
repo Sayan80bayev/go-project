@@ -1,4 +1,4 @@
-package mappers
+package mapper
 
 type MapFunc[T any, U any] func(T) U
 
