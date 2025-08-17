@@ -1,14 +1,13 @@
-package storage
+package objectStorage
 
 import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/Sayan80bayev/go-project/pkg/logging"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"mime/multipart"
-	"postService/internal/config"
-	"postService/pkg/logging"
 	"strings"
 )
 
@@ -17,13 +16,23 @@ var logger = logging.GetLogger()
 // prefix holds the base URL prefix extracted from config
 var prefix string
 
-// InitPrefix initializes the prefix variable from config
-func InitPrefix(cfg *config.Config) {
-	prefix = fmt.Sprintf("http://%s:%s/", cfg.MinioHost, cfg.MinioPort)
+// MinioConfig holds only MinIO-related settings
+type MinioConfig struct {
+	Host      string
+	Port      string
+	AccessKey string
+	SecretKey string
+	Bucket    string
 }
 
-func Init(cfg *config.Config) *minio.Client {
-	endpoint := fmt.Sprintf("%s:%s", cfg.MinioHost, cfg.MinioPort)
+// InitPrefix initializes the prefix variable from MinioConfig
+func InitPrefix(cfg *MinioConfig) {
+	prefix = fmt.Sprintf("http://%s:%s/", cfg.Host, cfg.Port)
+}
+
+// Init creates and returns a MinIO client
+func Init(cfg *MinioConfig) *minio.Client {
+	endpoint := fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
 	minioClient, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(cfg.AccessKey, cfg.SecretKey, ""),
 		Secure: false,
@@ -35,7 +44,8 @@ func Init(cfg *config.Config) *minio.Client {
 	return minioClient
 }
 
-func UploadFile(file multipart.File, header *multipart.FileHeader, cfg *config.Config, minioClient *minio.Client) (string, error) {
+// UploadFile uploads a file to MinIO and returns its URL
+func UploadFile(file multipart.File, header *multipart.FileHeader, cfg *MinioConfig, minioClient *minio.Client) (string, error) {
 	if file == nil || header == nil {
 		return "", errors.New("invalid file")
 	}
@@ -43,7 +53,7 @@ func UploadFile(file multipart.File, header *multipart.FileHeader, cfg *config.C
 
 	objectName := header.Filename
 	contentType := header.Header.Get("Content-Type")
-	bucketName := cfg.MinioBucket
+	bucketName := cfg.Bucket
 
 	_, err := minioClient.PutObject(
 		context.Background(),
@@ -58,10 +68,10 @@ func UploadFile(file multipart.File, header *multipart.FileHeader, cfg *config.C
 	}
 
 	fileURL := fmt.Sprintf("%s%s/%s", prefix, bucketName, objectName)
-
 	return fileURL, nil
 }
 
+// DeleteFileByURL deletes a file from MinIO using its URL
 func DeleteFileByURL(fileURL string, minioClient *minio.Client) error {
 	if fileURL == "" {
 		return errors.New("missing file_url parameter")
@@ -88,22 +98,24 @@ func DeleteFileByURL(fileURL string, minioClient *minio.Client) error {
 	return nil
 }
 
+// MinioStorage is a wrapper around MinIO client and config
 type MinioStorage struct {
 	client *minio.Client
-	cfg    *config.Config
+	cfg    *MinioConfig
 }
 
-func NewMinioStorage(client *minio.Client, cfg *config.Config) *MinioStorage {
-	// Initialize prefix once when creating storage
+// NewMinioStorage creates a new MinioStorage instance
+func NewMinioStorage(client *minio.Client, cfg *MinioConfig) *MinioStorage {
 	InitPrefix(cfg)
-
 	return &MinioStorage{client: client, cfg: cfg}
 }
 
+// UploadFile uploads a file using MinioStorage
 func (s *MinioStorage) UploadFile(file multipart.File, header *multipart.FileHeader) (string, error) {
 	return UploadFile(file, header, s.cfg, s.client)
 }
 
+// DeleteFileByURL deletes a file by URL using MinioStorage
 func (s *MinioStorage) DeleteFileByURL(fileURL string) error {
 	return DeleteFileByURL(fileURL, s.client)
 }

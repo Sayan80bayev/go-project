@@ -1,4 +1,4 @@
-package storage
+package objectStorage
 
 import (
 	"mime/multipart"

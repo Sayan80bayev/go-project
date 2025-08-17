@@ -10,13 +10,12 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// AuthMiddleware проверяет JWT и сохраняет нужные поля в Gin Context
 func AuthMiddleware(jwksURL string) gin.HandlerFunc {
 	jwks, err := keyfunc.Get(jwksURL, keyfunc.Options{
 		RefreshUnknownKID: true,
 	})
 	if err != nil {
-		log.Fatalf("Не удалось загрузить JWKS: %v", err)
+		log.Fatalf("Could not load JWKS: %v", err)
 	}
 
 	return func(c *gin.Context) {
@@ -40,23 +39,35 @@ func AuthMiddleware(jwksURL string) gin.HandlerFunc {
 			return
 		}
 
-		// Сохраняем нужные поля в контекст
 		if sub, ok := claims["sub"].(string); ok {
 			c.Set("user_id", sub)
 		}
+
 		if username, ok := claims["preferred_username"].(string); ok {
 			c.Set("username", username)
 		}
-		// Из Keycloak роли обычно в claims["realm_access"].roles
-		if realmAccess, ok := claims["realm_access"].(map[string]interface{}); ok {
-			if roles, ok := realmAccess["roles"].([]interface{}); ok {
-				var strRoles []string
-				for _, role := range roles {
-					if r, ok := role.(string); ok {
-						strRoles = append(strRoles, r)
+
+		// Map raw roles from Keycloak → our app roles
+		if resourceAccess, ok := claims["resource_access"].(map[string]interface{}); ok {
+			if authService, ok := resourceAccess["auth_service"].(map[string]interface{}); ok {
+				if roles, ok := authService["roles"].([]interface{}); ok {
+					var appRoles []Role
+					for _, role := range roles {
+						if r, ok := role.(string); ok {
+							switch strings.ToLower(r) {
+							case "admin":
+								appRoles = append(appRoles, RoleAdmin)
+							case "moder":
+								appRoles = append(appRoles, RoleModerator)
+							case "user":
+								appRoles = append(appRoles, RoleUser)
+							default:
+								// ignore unknown roles
+							}
+						}
 					}
+					c.Set("roles", appRoles)
 				}
-				c.Set("roles", strRoles)
 			}
 		}
 
