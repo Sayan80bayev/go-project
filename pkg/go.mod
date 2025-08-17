@@ -4,6 +4,7 @@ go 1.24.1
 
 require (
 	github.com/MicahParks/keyfunc/v2 v2.1.0
+	github.com/confluentinc/confluent-kafka-go v1.9.2
 	github.com/gin-gonic/gin v1.10.0
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/minio/minio-go/v7 v7.0.90
