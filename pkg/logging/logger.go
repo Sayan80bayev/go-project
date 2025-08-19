@@ -31,6 +31,8 @@ func (f *CustomTextFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		color = Yellow
 	case logrus.ErrorLevel:
 		color = Red
+	case logrus.DebugLevel:
+		color = Cyan
 	default:
 		color = Reset
 	}
@@ -53,15 +55,33 @@ var (
 	once     sync.Once
 )
 
-func GetLogger() *logrus.Logger {
+// InitLogger initializes the logger with a given log level
+func InitLogger(level string) *logrus.Logger {
 	once.Do(func() {
 		Instance = logrus.New()
 		Instance.SetOutput(os.Stdout)
 		Instance.SetFormatter(&CustomTextFormatter{})
+
+		// parse level string
+		parsedLevel, err := logrus.ParseLevel(strings.ToLower(level))
+		if err != nil {
+			parsedLevel = logrus.InfoLevel
+		}
+
+		Instance.SetLevel(parsedLevel)
 	})
 	return Instance
 }
 
+func GetLogger() *logrus.Logger {
+	if Instance == nil {
+		// default to Info if InitLogger wasn’t called explicitly
+		return InitLogger("info")
+	}
+	return Instance
+}
+
+// Gin middleware
 func Middleware(c *gin.Context) {
 	methodColor := getMethodColor(c.Request.Method)
 

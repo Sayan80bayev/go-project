@@ -2,7 +2,8 @@ package messaging
 
 import (
 	"encoding/json"
-	"sync"
+	"fmt"
+	"github.com/sirupsen/logrus"
 
 	"github.com/Sayan80bayev/go-project/pkg/logging"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
@@ -11,51 +12,28 @@ import (
 type KafkaProducer struct {
 	producer *kafka.Producer
 	topic    string
+	log      *logrus.Logger
 }
 
-var (
-	producerInstance *KafkaProducer
-	producerOnce     sync.Once
-)
-
-// GetKafkaProducer returns a singleton KafkaProducer instance
+// NewKafkaProducer creates a new KafkaProducer instance
 func NewKafkaProducer(brokers, topic string) (*KafkaProducer, error) {
-	var err error
-	var p *kafka.Producer
-	p, err = kafka.NewProducer(&kafka.ConfigMap{
+	logger := logging.GetLogger()
+
+	p, err := kafka.NewProducer(&kafka.ConfigMap{
 		"bootstrap.servers": brokers,
 	})
 	if err != nil {
-		logging.GetLogger().Warnf("Failed to create Kafka producer: %v", err)
-		return nil, err
+		logger.Warnf("Failed to create Kafka producer: %v", err)
+		return nil, fmt.Errorf("failed to create Kafka producer: %w", err)
 	}
-	logging.GetLogger().Infof("Kafka producer initialized for topic: %s", topic)
-	prod := &KafkaProducer{
+
+	logger.Infof("Kafka producer initialized for topic: %s", topic)
+
+	return &KafkaProducer{
 		producer: p,
 		topic:    topic,
-	}
-	return prod, err
-}
-
-// GetKafkaProducer returns a singleton KafkaProducer instance
-func GetKafkaProducer(brokers, topic string) (*KafkaProducer, error) {
-	var err error
-	producerOnce.Do(func() {
-		var p *kafka.Producer
-		p, err = kafka.NewProducer(&kafka.ConfigMap{
-			"bootstrap.servers": brokers,
-		})
-		if err != nil {
-			logging.GetLogger().Warnf("Failed to create Kafka producer: %v", err)
-			return
-		}
-		logging.GetLogger().Infof("Kafka producer initialized for topic: %s", topic)
-		producerInstance = &KafkaProducer{
-			producer: p,
-			topic:    topic,
-		}
-	})
-	return producerInstance, err
+		log:      logger,
+	}, nil
 }
 
 func (p *KafkaProducer) Produce(eventType string, data interface{}) error {
@@ -69,8 +47,8 @@ func (p *KafkaProducer) Produce(eventType string, data interface{}) error {
 
 	jsonData, err := json.Marshal(event)
 	if err != nil {
-		logging.GetLogger().Warnf("Failed to marshal event: %v", err)
-		return err
+		p.log.Warnf("Failed to marshal event: %v", err)
+		return fmt.Errorf("marshal event failed: %w", err)
 	}
 
 	err = p.producer.Produce(&kafka.Message{
@@ -78,16 +56,16 @@ func (p *KafkaProducer) Produce(eventType string, data interface{}) error {
 		Value:          jsonData,
 	}, nil)
 	if err != nil {
-		logging.GetLogger().Warnf("Failed to produce message: %v", err)
-		return err
+		p.log.Warnf("Failed to produce message: %v", err)
+		return fmt.Errorf("produce message failed: %w", err)
 	}
 
-	logging.GetLogger().Infof("Message produced to topic %s: %s", p.topic, jsonData)
+	p.log.Infof("Message produced to topic %s: %s", p.topic, string(jsonData))
 	return nil
 }
 
 func (p *KafkaProducer) Close() {
 	p.producer.Flush(5000)
 	p.producer.Close()
-	logging.GetLogger().Info("Kafka producer closed gracefully")
+	p.log.Info("Kafka producer closed gracefully")
 }
