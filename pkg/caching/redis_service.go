@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/redis/go-redis/v9"
+	"sync"
 	"time"
 )
 
@@ -10,8 +11,23 @@ type RedisService struct {
 	client *redis.Client
 }
 
-func NewCacheService(client *redis.Client) *RedisService {
+func NewRedisCacheService(client *redis.Client) *RedisService {
 	return &RedisService{client: client}
+}
+
+// ------------------- Singleton -------------------
+
+var (
+	cacheServiceInstance CacheService
+	once                 sync.Once
+)
+
+// GetRedisCacheService returns a singleton CacheService
+func GetRedisCacheService(client *redis.Client) CacheService {
+	once.Do(func() {
+		cacheServiceInstance = NewRedisCacheService(client)
+	})
+	return cacheServiceInstance
 }
 
 func (c *RedisService) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) error {

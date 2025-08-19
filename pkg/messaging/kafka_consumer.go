@@ -30,8 +30,32 @@ var (
 	consumerOnce     sync.Once
 )
 
-// GetConsumer returns a singleton KafkaConsumer instance
-func GetConsumer(config ConsumerConfig) (*KafkaConsumer, error) {
+// NewKafkaConsumer creates a new KafkaConsumer instance
+func NewKafkaConsumer(cfg ConsumerConfig) (*KafkaConsumer, error) {
+	var err error
+
+	var c *kafka.Consumer
+	c, err = kafka.NewConsumer(&kafka.ConfigMap{
+		"bootstrap.servers": cfg.BootstrapServers,
+		"group.id":          cfg.GroupID,
+		"auto.offset.reset": "earliest",
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	consumer := &KafkaConsumer{
+		config:   cfg,
+		consumer: c,
+		handlers: make(map[string]EventHandler),
+	}
+
+	return consumer, err
+}
+
+// GetKafkaConsumer returns a singleton KafkaConsumer instance
+func GetKafkaConsumer(config ConsumerConfig) (*KafkaConsumer, error) {
 	var err error
 	consumerOnce.Do(func() {
 		var c *kafka.Consumer

@@ -58,6 +58,16 @@ func newClient(cfg *MinioConfig) *minio.Client {
 	return minioClient
 }
 
+// NewMinioStorage creates a new MinioStorage instance
+func NewMinioStorage(cfg *MinioConfig) *MinioStorage {
+	InitPrefix(cfg)
+	client := newClient(cfg)
+	return &MinioStorage{
+		client: client,
+		cfg:    cfg,
+	}
+}
+
 // GetMinioStorage returns a singleton instance of MinioStorage
 func GetMinioStorage(cfg *MinioConfig) *MinioStorage {
 	once.Do(func() {

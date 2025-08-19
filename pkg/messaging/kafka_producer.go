@@ -18,8 +18,27 @@ var (
 	producerOnce     sync.Once
 )
 
-// GetProducer returns a singleton KafkaProducer instance
-func GetProducer(brokers, topic string) (*KafkaProducer, error) {
+// GetKafkaProducer returns a singleton KafkaProducer instance
+func NewKafkaProducer(brokers, topic string) (*KafkaProducer, error) {
+	var err error
+	var p *kafka.Producer
+	p, err = kafka.NewProducer(&kafka.ConfigMap{
+		"bootstrap.servers": brokers,
+	})
+	if err != nil {
+		logging.GetLogger().Warnf("Failed to create Kafka producer: %v", err)
+		return nil, err
+	}
+	logging.GetLogger().Infof("Kafka producer initialized for topic: %s", topic)
+	prod := &KafkaProducer{
+		producer: p,
+		topic:    topic,
+	}
+	return prod, err
+}
+
+// GetKafkaProducer returns a singleton KafkaProducer instance
+func GetKafkaProducer(brokers, topic string) (*KafkaProducer, error) {
 	var err error
 	producerOnce.Do(func() {
 		var p *kafka.Producer
