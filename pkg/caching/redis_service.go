@@ -1,4 +1,4 @@
-package service
+package caching
 
 import (
 	"context"
