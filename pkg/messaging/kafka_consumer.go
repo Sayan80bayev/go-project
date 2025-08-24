@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"time"
 
 	"github.com/Sayan80bayev/go-project/pkg/events"
 	"github.com/Sayan80bayev/go-project/pkg/logging"
@@ -64,7 +65,7 @@ func (c *KafkaConsumer) Start() {
 	c.log.Infof("KafkaConsumer started on topics: %v", c.config.Topics)
 
 	for {
-		msg, err := c.consumer.ReadMessage(-1)
+		msg, err := c.consumer.ReadMessage(1000 * time.Millisecond)
 		fmt.Printf("Message on %s: %s\n", msg.TopicPartition, string(msg.Value))
 		fmt.Printf("Message :%s \n", msg)
 		if err == nil {
