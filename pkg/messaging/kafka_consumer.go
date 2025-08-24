@@ -31,9 +31,10 @@ func NewKafkaConsumer(cfg ConsumerConfig) (*KafkaConsumer, error) {
 	logger := logging.GetLogger()
 
 	c, err := kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers": cfg.BootstrapServers,
-		"group.id":          cfg.GroupID,
-		"auto.offset.reset": "earliest",
+		"bootstrap.servers":     cfg.BootstrapServers,
+		"group.id":              cfg.GroupID,
+		"auto.offset.reset":     "earliest",
+		"broker.address.family": "v4",
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create Kafka consumer: %w", err)
