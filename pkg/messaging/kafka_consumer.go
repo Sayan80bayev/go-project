@@ -65,6 +65,8 @@ func (c *KafkaConsumer) Start() {
 
 	for {
 		msg, err := c.consumer.ReadMessage(-1)
+		fmt.Printf("Message on %s: %s\n", msg.TopicPartition, string(msg.Value))
+		fmt.Printf("Message :%s \n", msg)
 		if err == nil {
 			c.log.Infof("Received message: %s", string(msg.Value))
 			c.handleMessage(msg)
