@@ -2,11 +2,15 @@ package service
 
 import (
 	"auth_service/internal/config"
+	"auth_service/internal/events"
 	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/Sayan80bayev/go-project/pkg/messaging"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"net/url"
@@ -148,7 +152,27 @@ func RegisterUser(c *gin.Context, cfg *config.Config) error {
 		return errors.New("не удалось найти созданного пользователя")
 	}
 	userID := users[0]["id"].(string)
+	userUUID, err := uuid.Parse(userID)
+	if err != nil {
+		return fmt.Errorf("ошибка парсинга UUID: %v", err)
+	}
+	userCreatedPayload := events.UserCreatedPayload{
+		UserID:   userUUID,
+		Username: input.Username,
+		Email:    input.Email,
+	}
 
+	prod, err := messaging.NewKafkaProducer(cfg.KafkaBrokers[0], cfg.KafkaTopic)
+	if err != nil {
+		return err
+	}
+
+	go func() {
+		err := prod.Produce("UserCreated", userCreatedPayload)
+		if err != nil {
+			logrus.Errorf("ошибка отправки сообщения в Kafka: %v", err)
+		}
+	}()
 	// 4. Get client ID for "auth_service"
 	clientReq, _ := http.NewRequest("GET",
 		fmt.Sprintf("%s/admin/realms/%s/clients?clientId=%s", cfg.KeycloakURL, cfg.KeycloakRealm, cfg.ClientID),

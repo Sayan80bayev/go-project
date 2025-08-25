@@ -13,6 +13,10 @@ type Config struct {
 	ClientID         string `mapstructure:"KEYCLOAK_CLIENT_ID"`
 	ClientSecret     string `mapstructure:"KEYCLOAK_CLIENT_SECRET"`
 	KeycloakCertPath string `mapstructure:"KEYCLOAK_CERT_PATH"`
+
+	KafkaBrokers       []string `mapstructure:"KAFKA_BROKERS"`
+	KafkaTopic         string   `mapstructure:"KAFKA_TOPIC"`
+	KafkaProducerTopic string   `mapstructure:"KAFKA_PRODUCER_TOPIC"`
 }
 
 func LoadConfig() (*Config, error) {

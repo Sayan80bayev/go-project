@@ -3,12 +3,10 @@ package messaging
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/sirupsen/logrus"
-	"time"
-
 	"github.com/Sayan80bayev/go-project/pkg/events"
 	"github.com/Sayan80bayev/go-project/pkg/logging"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/sirupsen/logrus"
 )
 
 type ConsumerConfig struct {
@@ -65,7 +63,7 @@ func (c *KafkaConsumer) Start() {
 	c.log.Infof("KafkaConsumer started on topics: %v", c.config.Topics)
 
 	for {
-		msg, err := c.consumer.ReadMessage(1000 * time.Millisecond)
+		msg, err := c.consumer.ReadMessage(-1)
 		if err == nil {
 			c.log.Infof("Received message: %s", string(msg.Value))
 			c.handleMessage(msg)
