@@ -40,8 +40,13 @@ func AuthMiddleware(jwksURL string) gin.HandlerFunc {
 			return
 		}
 
-		if sub, ok := claims["sub"].(uuid.UUID); ok {
-			c.Set("user_id", sub)
+		if subStr, ok := claims["sub"].(string); ok {
+			if subUUID, err := uuid.Parse(subStr); err == nil {
+				c.Set("user_id", subUUID)
+			} else {
+				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid user_id in token"})
+				return
+			}
 		}
 
 		if username, ok := claims["preferred_username"].(string); ok {
