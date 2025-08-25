@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"github.com/google/uuid"
 	"log"
 	"net/http"
 	"strings"
@@ -39,7 +40,7 @@ func AuthMiddleware(jwksURL string) gin.HandlerFunc {
 			return
 		}
 
-		if sub, ok := claims["sub"].(string); ok {
+		if sub, ok := claims["sub"].(uuid.UUID); ok {
 			c.Set("user_id", sub)
 		}
 
