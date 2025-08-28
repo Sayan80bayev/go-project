@@ -1,19 +1,19 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres
-    container_name: go-project-postgres
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: postsdb
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    networks:
-      - go-project
+#  postgres:
+#    image: postgres
+#    container_name: go-project-postgres
+#    ports:
+#      - "5432:5432"
+#    environment:
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: password
+#      POSTGRES_DB: postsdb
+#    volumes:
+#      - pgdata:/var/lib/postgresql/data
+#    networks:
+#      - go-project
 
   keycloak-db:
     image: postgres
@@ -32,7 +32,7 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:26.3.1
     container_name: go-project-keycloak
-    command: start-dev
+    command: start-dev --spi-events-listener-providers=kafka-event-listener
     ports:
       - "8080:8080"
       - "8443:8443"
@@ -46,27 +46,31 @@ services:
       KC_DB_PASSWORD: keycloakpass
       KC_HTTPS_CERTIFICATE_FILE: /opt/keycloak/certs/server.crt
       KC_HTTPS_CERTIFICATE_KEY_FILE: /opt/keycloak/certs/server.key
+      # переменные для listener
+      KAFKA_BOOTSTRAP_SERVERS: go-project-kafka:9092
+      KAFKA_TOPIC: user-events
     depends_on:
       - keycloak-db
     networks:
       - go-project
     volumes:
       - ./nginx/certs:/opt/keycloak/certs
+      - ./services/keycloak-event-listener/build/libs/keycloak-event-listener-1.0.0.jar:/opt/keycloak/providers/keycloak-event-listener.jar
 
-  nginx:
-    image: nginx:latest
-    container_name: go-project-nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/certs:/etc/nginx/certs:ro
-    depends_on:
-      - userservice
-      - postservice
-    networks:
-      - go-project
+#  nginx:
+#    image: nginx:latest
+#    container_name: go-project-nginx
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    volumes:
+#      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+#      - ./nginx/certs:/etc/nginx/certs:ro
+#    depends_on:
+#      - userservice
+#      - postservice
+#    networks:
+#      - go-project
 
   minio:
     image: minio/minio:RELEASE.2025-04-22T22-12-26Z
@@ -112,7 +116,7 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: go-project-zookeeper:2181
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://go-project-kafka:9092,PLAINTEXT_HOST://localhost:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -122,82 +126,82 @@ services:
     networks:
       - go-project
 
-  userservice:
-    build:
-      context: ./services/userService
-      dockerfile: Dockerfile
-    container_name: userservice
-    ports:
-      - "8081:8081"
-    env_file:
-      - .env
-    depends_on:
-      - postgres
-      - kafka
-    environment:
-      DATABASE_URL: ${DATABASE_URL}
-      PORT: 8081
-      JWT_SECRET: ${JWT_SECRET}
-      ACCESS_KEY: ${ACCESS_KEY}
-      SECRET_KEY: ${SECRET_KEY}
-      MINIO_BUCKET: ${MINIO_BUCKET}
-      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
-      KAFKA_PRODUCER_TOPIC: ${KAFKA_PRODUCER_TOPIC_US}
-      KAFKA_CONSUMER_GROUP: ${KAFKA_CONSUMER_GROUP_US}
-      KAFKA_CONSUMER_TOPICS: ${KAFKA_CONSUMER_TOPICS_US}
-      REDIS_ADDR: ${REDIS_ADDR}
-      REDIS_PASS: ${REDIS_PASS}
-      KAFKA_BROKERS: ${KAFKA_BROKERS}
-      KAFKA_TOPIC: ${KAFKA_TOPIC}
-    networks:
-      - go-project
+#  userservice:
+#    build:
+#      context: ./services/userService
+#      dockerfile: Dockerfile
+#    container_name: userservice
+#    ports:
+#      - "8081:8081"
+#    env_file:
+#      - .env
+#    depends_on:
+#      - postgres
+#      - kafka
+#    environment:
+#      DATABASE_URL: ${DATABASE_URL}
+#      PORT: 8081
+#      JWT_SECRET: ${JWT_SECRET}
+#      ACCESS_KEY: ${ACCESS_KEY}
+#      SECRET_KEY: ${SECRET_KEY}
+#      MINIO_BUCKET: ${MINIO_BUCKET}
+#      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+#      KAFKA_PRODUCER_TOPIC: ${KAFKA_PRODUCER_TOPIC_US}
+#      KAFKA_CONSUMER_GROUP: ${KAFKA_CONSUMER_GROUP_US}
+#      KAFKA_CONSUMER_TOPICS: ${KAFKA_CONSUMER_TOPICS_US}
+#      REDIS_ADDR: ${REDIS_ADDR}
+#      REDIS_PASS: ${REDIS_PASS}
+#      KAFKA_BROKERS: ${KAFKA_BROKERS}
+#      KAFKA_TOPIC: ${KAFKA_TOPIC}
+#    networks:
+#      - go-project
 
-  postservice:
-    build:
-      context: ./services/postService
-      dockerfile: Dockerfile
-    container_name: postservice
-    ports:
-      - "8089:8080"
-    depends_on:
-      - postgres
-      - kafka
-    env_file:
-      - .env
-    environment:
-      DATABASE_URL: ${DATABASE_URL}
-      PORT: ${PORT}
-      JWT_SECRET: ${JWT_SECRET}
-      ACCESS_KEY: ${ACCESS_KEY}
-      SECRET_KEY: ${SECRET_KEY}
-      MINIO_BUCKET: ${MINIO_BUCKET}
-      REDIS_ADDR: ${REDIS_ADDR}
-      REDIS_PASS: ${REDIS_PASS}
-      KAFKA_BROKERS: ${KAFKA_BROKERS}
-      KAFKA_TOPIC: ${KAFKA_TOPIC}
-    networks:
-      - go-project
+#  postservice:
+#    build:
+#      context: ./services/postService
+#      dockerfile: Dockerfile
+#    container_name: postservice
+#    ports:
+#      - "8089:8080"
+#    depends_on:
+#      - postgres
+#      - kafka
+#    env_file:
+#      - .env
+#    environment:
+#      DATABASE_URL: ${DATABASE_URL}
+#      PORT: ${PORT}
+#      JWT_SECRET: ${JWT_SECRET}
+#      ACCESS_KEY: ${ACCESS_KEY}
+#      SECRET_KEY: ${SECRET_KEY}
+#      MINIO_BUCKET: ${MINIO_BUCKET}
+#      REDIS_ADDR: ${REDIS_ADDR}
+#      REDIS_PASS: ${REDIS_PASS}
+#      KAFKA_BROKERS: ${KAFKA_BROKERS}
+#      KAFKA_TOPIC: ${KAFKA_TOPIC}
+#    networks:
+#      - go-project
 
-  auth_service:
-    build:
-      context: ./services/authService-keycloack
-      dockerfile: Dockerfile
-    container_name: auth_service
-    ports:
-      - "8082:8082"
-    env_file:
-      - .env
-    depends_on:
-      - keycloak
-    environment:
-      PORT: ${AUTH_SERVICE_PORT}
-      KEYCLOAK_URL: ${KEYCLOAK_URL}
-      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
-      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
-      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
-      KEYCLOAK_CERT_PATH: ${KEYCLOAK_CERT_PATH}
-    networks:
-      - go-project
+#  auth_service:
+#    build:
+#      context: ./services/authService-keycloack
+#      dockerfile: Dockerfile
+#    container_name: auth_service
+#    ports:
+#      - "8082:8082"
+#    env_file:
+#      - .env
+#    depends_on:
+#      - keycloak
+#    environment:
+#      PORT: ${AUTH_SERVICE_PORT}
+#      KEYCLOAK_URL: ${KEYCLOAK_URL}
+#      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+#      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
+#      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
+#      KEYCLOAK_CERT_PATH: ${KEYCLOAK_CERT_PATH}
+#    networks:
+#      - go-project
 
   mongodb:
     image: mongo:6.0
