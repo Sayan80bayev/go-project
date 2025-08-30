@@ -56,7 +56,7 @@ func NewMinioStorage(cfg *MinioConfig) (*MinioStorage, error) {
 }
 
 // UploadFile uploads a file using MinioStorage
-func (s *MinioStorage) UploadFile(file multipart.File, header *multipart.FileHeader) (string, error) {
+func (s *MinioStorage) UploadFile(ctx context.Context, file multipart.File, header *multipart.FileHeader) (string, error) {
 	if file == nil || header == nil {
 		return "", errors.New("invalid file")
 	}
@@ -67,7 +67,7 @@ func (s *MinioStorage) UploadFile(file multipart.File, header *multipart.FileHea
 	bucketName := s.cfg.Bucket
 
 	_, err := s.client.PutObject(
-		context.Background(),
+		ctx,
 		bucketName,
 		objectName,
 		file,
@@ -83,7 +83,7 @@ func (s *MinioStorage) UploadFile(file multipart.File, header *multipart.FileHea
 }
 
 // DeleteFileByURL deletes a file by URL using MinioStorage
-func (s *MinioStorage) DeleteFileByURL(fileURL string) error {
+func (s *MinioStorage) DeleteFileByURL(ctx context.Context, fileURL string) error {
 	if fileURL == "" {
 		return errors.New("missing file_url parameter")
 	}
@@ -100,7 +100,7 @@ func (s *MinioStorage) DeleteFileByURL(fileURL string) error {
 	bucketName := parts[0]
 	objectName := parts[1]
 
-	err := s.client.RemoveObject(context.Background(), bucketName, objectName, minio.RemoveObjectOptions{})
+	err := s.client.RemoveObject(ctx, bucketName, objectName, minio.RemoveObjectOptions{})
 	if err != nil {
 		return fmt.Errorf("failed to delete file: %w", err)
 	}

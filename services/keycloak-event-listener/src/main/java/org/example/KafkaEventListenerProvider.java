@@ -36,30 +36,47 @@ public class KafkaEventListenerProvider implements EventListenerProvider {
 
     @Override
     public void onEvent(Event event) {
+        // Слушаем регистрацию или логин
         if (event.getType() == EventType.REGISTER) {
-
             try {
-            String userId = event.getUserId();
-            String email = null;
+                String userId = event.getUserId();
+                String email = null;
+                String firstName = null;
+                String lastName = null;
 
-            if (userId != null) {
-                UserModel user = session.users().getUserById(session.getContext().getRealm(), userId);
-                if (user != null) {
-                    email = user.getEmail();
+                if (userId != null) {
+                    UserModel user = session.users().getUserById(session.getContext().getRealm(), userId);
+                    if (user != null) {
+                        email = user.getEmail();
+                        firstName = user.getFirstName();
+                        lastName = user.getLastName();
+
+                        // если поля в Keycloak отключены, но пришли из IdP:
+                        if (firstName == null) {
+                            firstName = user.getFirstAttribute("given_name");
+                        }
+                        if (lastName == null) {
+                            lastName = user.getFirstAttribute("family_name");
+                        }
+                    }
                 }
+
+                String payload = String.format(
+                        "{\"type\":\"UserCreated\",\"data\":{" +
+                                "\"user_id\":\"%s\"," +
+                                "\"email\":\"%s\"," +
+                                "\"firstname\":\"%s\"," +
+                                "\"lastname\":\"%s\"" +
+                                "}}",
+                        userId, email, firstName, lastName
+                );
+
+
+                producer.send(new ProducerRecord<>(topic, userId, payload));
+                log.debug("Published user event: {}", payload);
+            } catch (Exception e) {
+                log.error("Failed to send user event to Kafka", e);
             }
-
-            String payload = String.format(
-                    "{\"kind\":\"USER\",\"type\":\"%s\",\"realmId\":\"%s\",\"clientId\":\"%s\",\"userId\":\"%s\",\"email\":\"%s\",\"ip\":\"%s\",\"time\":%d}",
-                    event.getType(), event.getRealmId(), event.getClientId(),
-                    userId, email, event.getIpAddress(), event.getTime()
-            );
-
-            producer.send(new ProducerRecord<>(topic, userId, payload));
-            log.debug("Published user event: {}", payload);
-        } catch (Exception e) {
-            log.error("Failed to send user event to Kafka", e);
-        }
         }
     }
 

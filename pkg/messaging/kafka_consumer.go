@@ -1,6 +1,7 @@
 package messaging
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/Sayan80bayev/go-project/pkg/events"
@@ -54,7 +55,7 @@ func (c *KafkaConsumer) RegisterHandler(eventType string, handler EventHandler) 
 	c.handlers[eventType] = handler
 }
 
-func (c *KafkaConsumer) Start() {
+func (c *KafkaConsumer) Start(ctx context.Context) {
 	if err := c.consumer.SubscribeTopics(c.config.Topics, nil); err != nil {
 		c.log.Errorf("Error subscribing to topics: %v", err)
 		return
@@ -63,12 +64,18 @@ func (c *KafkaConsumer) Start() {
 	c.log.Infof("KafkaConsumer started on topics: %v", c.config.Topics)
 
 	for {
-		msg, err := c.consumer.ReadMessage(-1)
-		if err == nil {
-			c.log.Infof("Received message: %s", string(msg.Value))
-			c.handleMessage(msg)
-		} else {
-			c.log.Warnf("KafkaConsumer error: %v", err)
+		select {
+		case <-ctx.Done():
+			c.log.Info("KafkaConsumer stopped by context cancellation")
+			return
+		default:
+			msg, err := c.consumer.ReadMessage(-1)
+			if err == nil {
+				c.log.Infof("Received message: %s", string(msg.Value))
+				c.handleMessage(msg)
+			} else {
+				c.log.Warnf("KafkaConsumer error: %v", err)
+			}
 		}
 	}
 }

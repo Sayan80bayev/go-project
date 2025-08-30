@@ -1,6 +1,7 @@
 package messaging
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/sirupsen/logrus"
@@ -36,7 +37,14 @@ func NewKafkaProducer(brokers, topic string) (*KafkaProducer, error) {
 	}, nil
 }
 
-func (p *KafkaProducer) Produce(eventType string, data interface{}) error {
+func (p *KafkaProducer) Produce(ctx context.Context, eventType string, data interface{}) error {
+	select {
+	case <-ctx.Done():
+		p.log.Warnf("Produce cancelled by context: %v", ctx.Err())
+		return ctx.Err()
+	default:
+	}
+
 	event := struct {
 		Type string      `json:"type"`
 		Data interface{} `json:"data"`

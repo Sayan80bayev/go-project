@@ -1,11 +1,11 @@
 package objectStorage
 
 import (
-	"mime/multipart"
+    "context"
+    "mime/multipart"
 )
 
 type FileStorage interface {
-	UploadFile(file multipart.File, header *multipart.FileHeader) (string, error)
-
-	DeleteFileByURL(fileURL string) error
+    UploadFile(ctx context.Context, file multipart.File, header *multipart.FileHeader) (string, error)
+    DeleteFileByURL(ctx context.Context, fileURL string) error
 }

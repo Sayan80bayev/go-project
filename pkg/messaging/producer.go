@@ -1,6 +1,8 @@
 package messaging
 
+import "context"
+
 type Producer interface {
-	Produce(evenType string, data interface{}) error
-	Close()
+    Produce(ctx context.Context, eventType string, data interface{}) error
+    Close()
 }

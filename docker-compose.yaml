@@ -126,6 +126,17 @@ services:
     networks:
       - go-project
 
+  mailhog:
+    image: mailhog/mailhog
+    container_name: mailhog
+    restart: always
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    networks:
+      - go-project
+
+
 #  userservice:
 #    build:
 #      context: ./services/userService
