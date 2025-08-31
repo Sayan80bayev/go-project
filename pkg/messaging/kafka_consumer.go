@@ -3,6 +3,7 @@ package messaging
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/Sayan80bayev/go-project/pkg/events"
 	"github.com/Sayan80bayev/go-project/pkg/logging"
@@ -69,13 +70,20 @@ func (c *KafkaConsumer) Start(ctx context.Context) {
 			c.log.Info("KafkaConsumer stopped by context cancellation")
 			return
 		default:
-			msg, err := c.consumer.ReadMessage(-1)
-			if err == nil {
-				c.log.Infof("Received message: %s", string(msg.Value))
-				c.handleMessage(msg)
-			} else {
+			// Use a timeout instead of -1 to make loop cancellable
+			msg, err := c.consumer.ReadMessage(100) // 100ms
+			if err != nil {
+				// Check if it's just a timeout (ErrTimedOut)
+				var kafkaErr kafka.Error
+				if errors.As(err, &kafkaErr) && kafkaErr.Code() == kafka.ErrTimedOut {
+					continue
+				}
 				c.log.Warnf("KafkaConsumer error: %v", err)
+				continue
 			}
+
+			c.log.Infof("Received message: %s", string(msg.Value))
+			c.handleMessage(msg)
 		}
 	}
 }
