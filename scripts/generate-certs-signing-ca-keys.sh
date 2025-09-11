@@ -2,7 +2,7 @@
 set -euo pipefail
 
 CERT_DIR="../nginx/certs"
-DOMAIN="${DOMAIN:-go-project-macos.dev}"
+DOMAIN="${DOMAIN:-go-project-keycloak}"
 LOCAL_DNS="localhost"
 LOCAL_IP="127.0.0.1"
 

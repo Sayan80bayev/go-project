@@ -137,61 +137,88 @@ services:
       - go-project
 
 
-#  userservice:
-#    build:
-#      context: ./services/userService
-#      dockerfile: Dockerfile
-#    container_name: userservice
-#    ports:
-#      - "8081:8081"
-#    env_file:
-#      - .env
-#    depends_on:
-#      - postgres
-#      - kafka
-#    environment:
-#      DATABASE_URL: ${DATABASE_URL}
-#      PORT: 8081
-#      JWT_SECRET: ${JWT_SECRET}
-#      ACCESS_KEY: ${ACCESS_KEY}
-#      SECRET_KEY: ${SECRET_KEY}
-#      MINIO_BUCKET: ${MINIO_BUCKET}
-#      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
-#      KAFKA_PRODUCER_TOPIC: ${KAFKA_PRODUCER_TOPIC_US}
-#      KAFKA_CONSUMER_GROUP: ${KAFKA_CONSUMER_GROUP_US}
-#      KAFKA_CONSUMER_TOPICS: ${KAFKA_CONSUMER_TOPICS_US}
-#      REDIS_ADDR: ${REDIS_ADDR}
-#      REDIS_PASS: ${REDIS_PASS}
-#      KAFKA_BROKERS: ${KAFKA_BROKERS}
-#      KAFKA_TOPIC: ${KAFKA_TOPIC}
-#    networks:
-#      - go-project
+  userservice:
+    build:
+      context: .                # project root is the context
+      dockerfile: services/userService/Dockerfile
+    container_name: userservice
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mongodb
+      - kafka
+    volumes:
+      # Optional: safer than baking certs into image
+      - ./nginx/certs/ca.crt:/usr/local/share/ca-certificates/ca.crt:ro
+      - ./nginx/certs/ca.key:/etc/ssl/private/ca.key:ro
+    environment:
+      PORT: "8081"
+      JWT_SECRET: ${JWT_SECRET}
+      ACCESS_KEY: ${ACCESS_KEY}
+      SECRET_KEY: ${SECRET_KEY}
 
-#  postservice:
-#    build:
-#      context: ./services/postService
-#      dockerfile: Dockerfile
-#    container_name: postservice
-#    ports:
-#      - "8089:8080"
-#    depends_on:
-#      - postgres
-#      - kafka
-#    env_file:
-#      - .env
-#    environment:
-#      DATABASE_URL: ${DATABASE_URL}
-#      PORT: ${PORT}
-#      JWT_SECRET: ${JWT_SECRET}
-#      ACCESS_KEY: ${ACCESS_KEY}
-#      SECRET_KEY: ${SECRET_KEY}
-#      MINIO_BUCKET: ${MINIO_BUCKET}
-#      REDIS_ADDR: ${REDIS_ADDR}
-#      REDIS_PASS: ${REDIS_PASS}
-#      KAFKA_BROKERS: ${KAFKA_BROKERS}
-#      KAFKA_TOPIC: ${KAFKA_TOPIC}
-#    networks:
-#      - go-project
+      MINIO_BUCKET: ${MINIO_BUCKET}
+      MINIO_HOST: ${MINIO_HOST}
+      MINIO_PORT: ${MINIO_PORT}
+
+      REDIS_ADDR: ${REDIS_ADDR}
+      REDIS_PASS: ${REDIS_PASS}
+
+      KAFKA_BROKERS: ${KAFKA_BROKERS}
+      KAFKA_TOPIC: ${KAFKA_TOPIC}
+      KAFKA_PRODUCER_TOPIC: ${KAFKA_PRODUCER_TOPIC}
+      KAFKA_CONSUMER_GROUP: ${KAFKA_CONSUMER_GROUP}
+      KAFKA_CONSUMER_TOPICS: ${KAFKA_CONSUMER_TOPICS}
+
+      MONGO_URI: ${MONGO_URI}
+      MONGO_DB_NAME: ${MONGO_DB_NAME}
+
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
+      KEYCLOAK_URL: ${KEYCLOAK_URL}
+    networks:
+      - go-project
+
+  postservice:
+    build:
+      context: .
+      dockerfile: services/postService/Dockerfile
+    container_name: postservice
+    ports:
+      - "8089:8089"
+    depends_on:
+      - mongodb
+      - kafka
+    volumes:
+      # Optional: safer than baking certs into image
+      - ./nginx/certs/ca.crt:/usr/local/share/ca-certificates/ca.crt:ro
+      - ./nginx/certs/ca.key:/etc/ssl/private/ca.key:ro
+    environment:
+      PORT: "8089"
+      ACCESS_KEY: ${ACCESS_KEY}
+      SECRET_KEY: ${SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET}
+      MINIO_HOST: ${MINIO_HOST}
+      MINIO_PORT: ${MINIO_PORT}
+
+      REDIS_ADDR: ${REDIS_ADDR}
+      REDIS_PASS: ${REDIS_PASS}
+
+      KAFKA_BROKERS: ${KAFKA_BROKERS}
+      KAFKA_TOPIC: ${KAFKA_TOPIC}
+
+      USER_SERVICE_URL: ${USER_SERVICE_URL}
+
+      MONGO_URI: ${MONGO_URI}
+      MONGO_DB_NAME: ${MONGO_DB_NAME}
+
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+      KEYCLOAK_URL: ${KEYCLOAK_URL}
+
+      JWT_SECRET: ${JWT_SECRET}
+    networks:
+      - go-project
 
 #  auth_service:
 #    build:

@@ -2,7 +2,7 @@
 set -e
 
 CERT_DIR="../nginx/certs"
-DOMAIN="go-project-macos.dev"
+DOMAIN="go-project-keycloak"
 LOCAL_DNS="localhost"
 LOCAL_IP="127.0.0.1"
 
