@@ -1,19 +1,19 @@
 version: '3.8'
 
 services:
-#  postgres:
-#    image: postgres
-#    container_name: go-project-postgres
-#    ports:
-#      - "5432:5432"
-#    environment:
-#      POSTGRES_USER: postgres
-#      POSTGRES_PASSWORD: password
-#      POSTGRES_DB: postsdb
-#    volumes:
-#      - pgdata:/var/lib/postgresql/data
-#    networks:
-#      - go-project
+  postgres:
+    image: postgres
+    container_name: go-project-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: paymentsdb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - go-project
 
   keycloak-db:
     image: postgres

@@ -2,9 +2,12 @@ package objectStorage
 
 import (
 	"context"
+	"crypto/sha1"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"mime/multipart"
+	"path/filepath"
 	"strings"
 
 	"github.com/Sayan80bayev/go-project/pkg/logging"
@@ -14,11 +17,12 @@ import (
 
 // MinioConfig holds only MinIO-related settings
 type MinioConfig struct {
-	Host      string
-	Port      string
-	AccessKey string
-	SecretKey string
-	Bucket    string
+	Host       string
+	Port       string
+	AccessKey  string
+	SecretKey  string
+	Bucket     string
+	PublicHost string
 }
 
 // MinioStorage is a wrapper around MinIO client and config
@@ -51,7 +55,7 @@ func NewMinioStorage(cfg *MinioConfig) (*MinioStorage, error) {
 	return &MinioStorage{
 		client: client,
 		cfg:    cfg,
-		prefix: fmt.Sprintf("http://%s:%s/", cfg.Host, cfg.Port),
+		prefix: fmt.Sprintf("http://%s:%s/", cfg.PublicHost, cfg.Port),
 	}, nil
 }
 
@@ -62,7 +66,23 @@ func (s *MinioStorage) UploadFile(ctx context.Context, file multipart.File, head
 	}
 	defer file.Close()
 
-	objectName := header.Filename
+	// Берём оригинальное имя файла
+	originalName := header.Filename
+
+	// Генерируем SHA1 хэш от имени
+	h := sha1.New()
+	h.Write([]byte(originalName))
+	hashedName := hex.EncodeToString(h.Sum(nil))
+
+	// Можно сохранить расширение файла, чтобы не терять формат
+	// (например, .jpg, .png, .pdf и т.д.)
+	ext := ""
+	if idx := len(originalName) - 1 - len(header.Filename); idx >= 0 {
+		// безопаснее использовать filepath.Ext
+		ext = filepath.Ext(originalName)
+	}
+	objectName := hashedName + ext
+
 	contentType := header.Header.Get("Content-Type")
 	bucketName := s.cfg.Bucket
 
