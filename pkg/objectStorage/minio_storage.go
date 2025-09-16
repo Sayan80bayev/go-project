@@ -71,23 +71,18 @@ func (s *MinioStorage) UploadFile(ctx context.Context, file multipart.File, head
 	// Берём оригинальное имя файла
 	originalName := header.Filename
 
-	// Генерируем SHA1 хэш от имени
+	// Генерируем SHA1 от имени файла
 	h := sha1.New()
 	h.Write([]byte(originalName))
 	hashedName := hex.EncodeToString(h.Sum(nil))
 
-	// Можно сохранить расширение файла, чтобы не терять формат
-	// (например, .jpg, .png, .pdf и т.д.)
-	ext := ""
-	if idx := len(originalName) - 1 - len(header.Filename); idx >= 0 {
-		// безопаснее использовать filepath.Ext
-		ext = filepath.Ext(originalName)
-	}
-	objectName := hashedName + ext
+	// Формируем имя: sha1_originalName
+	objectName := fmt.Sprintf("%s_%s", hashedName, originalName)
 
 	contentType := header.Header.Get("Content-Type")
 	bucketName := s.cfg.Bucket
 
+	// Загружаем файл в MinIO
 	_, err := s.client.PutObject(
 		ctx,
 		bucketName,
@@ -100,6 +95,7 @@ func (s *MinioStorage) UploadFile(ctx context.Context, file multipart.File, head
 		return "", fmt.Errorf("failed to upload file: %w", err)
 	}
 
+	// Возвращаем URL к файлу
 	fileURL := fmt.Sprintf("%s%s/%s", s.prefix, bucketName, objectName)
 	return fileURL, nil
 }
