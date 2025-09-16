@@ -6,7 +6,9 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"io"
 	"mime/multipart"
+	"net/http"
 	"path/filepath"
 	"strings"
 
@@ -124,5 +126,46 @@ func (s *MinioStorage) DeleteFileByURL(ctx context.Context, fileURL string) erro
 	if err != nil {
 		return fmt.Errorf("failed to delete file: %w", err)
 	}
+	return nil
+}
+
+// DownloadFile for USER to download
+func (s *MinioStorage) DownloadFile(w http.ResponseWriter, r *http.Request, fileURL string) error {
+	if fileURL == "" {
+		http.Error(w, "missing file_url parameter", http.StatusBadRequest)
+		return errors.New("missing file_url parameter")
+	}
+	if !strings.HasPrefix(fileURL, s.prefix) {
+		http.Error(w, "invalid file_url format", http.StatusBadRequest)
+		return errors.New("invalid file_url format")
+	}
+
+	path := strings.TrimPrefix(fileURL, s.prefix)
+	parts := strings.SplitN(path, "/", 2)
+	if len(parts) < 2 {
+		http.Error(w, "invalid file_url format", http.StatusBadRequest)
+		return errors.New("invalid file_url format")
+	}
+
+	bucketName := parts[0]
+	objectName := parts[1]
+
+	// Получаем объект из MinIO
+	object, err := s.client.GetObject(r.Context(), bucketName, objectName, minio.GetObjectOptions{})
+	if err != nil {
+		http.Error(w, fmt.Sprintf("failed to get object: %v", err), http.StatusInternalServerError)
+		return fmt.Errorf("failed to get object: %w", err)
+	}
+	defer object.Close()
+
+	// Отправляем файл в ответ
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", filepath.Base(objectName)))
+	w.Header().Set("Content-Type", "application/octet-stream")
+
+	if _, err := io.Copy(w, object); err != nil {
+		http.Error(w, fmt.Sprintf("failed to stream file: %v", err), http.StatusInternalServerError)
+		return fmt.Errorf("failed to stream file: %w", err)
+	}
+
 	return nil
 }
