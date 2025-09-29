@@ -1,0 +1,3 @@
+DROP INDEX IF EXISTS i_followee;
+DROP INDEX IF EXISTS i_follower;
+DROP TABLE IF EXISTS subscriptions;
