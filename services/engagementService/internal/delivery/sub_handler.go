@@ -2,7 +2,9 @@ package delivery
 
 import (
 	"context"
+	commonErrors "engagementService/internal/errors"
 	"engagementService/internal/service"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"
@@ -38,7 +40,7 @@ func (h *SubscriptionHandler) Follow(c *gin.Context) {
 
 	err = h.svc.Follow(ctx, followerID.(uuid.UUID), followeeID)
 	if err != nil {
-		if err == service.ErrAlreadyFollowing {
+		if errors.Is(err, commonErrors.ErrAlreadyFollowing) {
 			c.JSON(http.StatusConflict, gin.H{"error": "already following"})
 			return
 		}

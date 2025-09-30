@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package user;
+
+// This go_package makes protoc generate code into your userService/proto folder
+// and importable in Go as "userpb".
+option go_package = "/pkg/proto;userpb";
+
+import "google/protobuf/timestamp.proto";
+
+service UserService {
+  // Get user by ID
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+}
+
+message GetUserRequest {
+  string user_id = 1;
+}
+
+message GetUserResponse {
+  string id = 1;
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp updated_at = 3;
+
+  // Optional fields
+  google.protobuf.Timestamp deleted_at = 4;
+  google.protobuf.Timestamp date_of_birth = 9;
+
+  string email = 5;
+  string firstname = 6;
+  string lastname = 7;
+
+  optional string about = 8;       // optional in proto3
+  optional string avatar_url = 10; // optional
+  optional string gender = 11;     // optional
+  optional string location = 12;   // optional
+
+  repeated string socials = 13;
+  bool needs_completion = 14;
+}

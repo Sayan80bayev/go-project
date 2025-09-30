@@ -17,11 +17,16 @@ func main() {
 	r := gin.New()
 	r.Use(gin.Recovery())
 	r.Use(logging.Middleware)
-	router.SetupSubscriptionRoutes(r, ctn)
+	SetupRoutes(r, ctn)
 
 	err = r.Run(":" + ctn.Config.Port)
 	if err != nil {
 		panic(err)
 		return
 	}
+}
+
+func SetupRoutes(r *gin.Engine, ctn *bootstrap.Container) {
+	router.SetupSubscriptionRoutes(r, ctn)
+	router.SetupLikeRoutes(r, ctn)
 }

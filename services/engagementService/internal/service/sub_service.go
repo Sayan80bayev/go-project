@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	commonErrors "engagementService/internal/errors"
 	"engagementService/internal/event"
 	"engagementService/internal/repository"
 	"errors"
@@ -13,11 +14,6 @@ import (
 	"github.com/google/uuid"
 
 	"engagementService/internal/model"
-)
-
-var (
-	ErrAlreadyFollowing = errors.New("already following")
-	ErrNotFollowing     = errors.New("not following")
 )
 
 type SubscriptionService struct {
@@ -50,9 +46,9 @@ func (s *SubscriptionService) Follow(ctx context.Context, followerID, followeeID
 
 	err := s.repo.Create(ctx, sub)
 	if err != nil {
-		if errors.Is(err, repository.ErrDuplicateSubscription) {
+		if errors.Is(err, commonErrors.ErrDuplicateSubscription) {
 
-			return ErrAlreadyFollowing
+			return commonErrors.ErrAlreadyFollowing
 		}
 		return fmt.Errorf("repo create: %w", err)
 	}

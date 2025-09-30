@@ -1,13 +1,13 @@
 # Environment variables for PostgreSQL (override in .env or environment)
-DB_HOST ?= localhost
-DB_PORT ?= 5432
-DB_USER ?= postgres
-DB_PASSWORD ?= password
-DB_NAME ?= engagement_service
+POSTGRES_HOST ?= localhost
+POSTGRES_PORT ?= 5432
+POSTGRES_USER ?= postgres
+POSTGRES_PASSWORD ?= password
+POSTGRES_DB_NAME ?= engagement_db
 DB_SSLMODE ?= disable
 
 # Database connection string
-DB_URL = postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSLMODE)
+DB_URL = postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB_NAME)?sslmode=$(DB_SSLMODE)
 
 # Migration directory
 MIGRATIONS_DIR = migrations

@@ -24,6 +24,7 @@ type Container struct {
 	Producer            messaging.Producer
 	Consumer            messaging.Consumer
 	SubscriptionService *service.SubscriptionService
+	LikeService         *service.LikeService
 	Config              *config.Config
 	JWKSUrl             string
 }
@@ -62,6 +63,9 @@ func Init() (*Container, error) {
 	subRepo := repository.NewPostgresSubscriptionRepo(db) // Changed to NewPostgresSubscriptionRepo
 	subService := service.NewSubscriptionService(subRepo, producer)
 
+	likeRepo := repository.NewPostgresLikeRepo(db)
+	likeService := service.NewLikeService(likeRepo)
+
 	//consumer, err := initKafkaConsumer(cfg, fileStorage, userRepository)
 	//if err != nil {
 	//	return nil, err
@@ -80,6 +84,7 @@ func Init() (*Container, error) {
 		Config:              cfg,
 		JWKSUrl:             jwksURL,
 		SubscriptionService: subService,
+		LikeService:         likeService,
 	}, nil
 }
 

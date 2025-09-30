@@ -147,6 +147,8 @@ services:
     depends_on:
       - mongodb
       - kafka
+      - redis
+      - keycloak
     volumes:
       # Optional: safer than baking certs into image
       - ./nginx/certs/ca.crt:/usr/local/share/ca-certificates/ca.crt:ro
@@ -190,6 +192,8 @@ services:
     depends_on:
       - mongodb
       - kafka
+      - redis
+      - keycloak
     volumes:
       # Optional: safer than baking certs into image
       - ./nginx/certs/ca.crt:/usr/local/share/ca-certificates/ca.crt:ro

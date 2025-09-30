@@ -9,12 +9,8 @@ import (
 	"github.com/lib/pq"
 	_ "github.com/lib/pq" // PostgreSQL driver
 	"time"
-)
 
-// Domain errors
-var (
-	ErrDuplicateSubscription = errors.New("subscription already exists")
-	ErrNotFound              = errors.New("subscription not found") // Added for SQL-specific not found errors
+	commonErrors "engagementService/internal/errors" // Import the new errors package
 )
 
 type SubscriptionRepo interface {
@@ -100,7 +96,7 @@ func (r *PostgresSubscriptionRepo) Create(ctx context.Context, s *model.Subscrip
 		// This is a common way to check for unique constraint violations in pq driver
 		var pqErr *pq.Error
 		if errors.As(err, &pqErr) && pqErr.Code.Name() == "unique_violation" {
-			return ErrDuplicateSubscription
+			return commonErrors.ErrDuplicateSubscription // Use commonErrors
 		}
 		return err
 	}
@@ -125,7 +121,7 @@ func (r *PostgresSubscriptionRepo) Delete(ctx context.Context, followerID, follo
 		return err
 	}
 	if rowsAffected == 0 {
-		return ErrNotFound // Or a more specific error if needed
+		return commonErrors.ErrNotFound // Use commonErrors
 	}
 	return nil
 }
@@ -145,7 +141,7 @@ func (r *PostgresSubscriptionRepo) HardDelete(ctx context.Context, followerID, f
 		return err
 	}
 	if rowsAffected == 0 {
-		return ErrNotFound // Or a more specific error if needed
+		return commonErrors.ErrNotFound // Use commonErrors
 	}
 	return nil
 }
