@@ -247,7 +247,7 @@ const file_pkg_proto_user_proto_rawDesc = "" +
 	"\a_genderB\v\n" +
 	"\t_location2E\n" +
 	"\vUserService\x126\n" +
-	"\aGetUser\x12\x14.user.GetUserRequest\x1a\x15.user.GetUserResponseB\x13Z\x11/pkg/proto;userpbb\x06proto3"
+	"\aGetUser\x12\x14.user.GetUserRequest\x1a\x15.user.GetUserResponseB\x18Z\x16/pkg/proto/user;userpbb\x06proto3"
 
 var (
 	file_pkg_proto_user_proto_rawDescOnce sync.Once

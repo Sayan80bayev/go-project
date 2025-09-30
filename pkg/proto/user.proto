@@ -4,7 +4,7 @@ package user;
 
 // This go_package makes protoc generate code into your userService/proto folder
 // and importable in Go as "userpb".
-option go_package = "/pkg/proto;userpb";
+option go_package = "/pkg/proto/user;userpb";
 
 import "google/protobuf/timestamp.proto";
 
