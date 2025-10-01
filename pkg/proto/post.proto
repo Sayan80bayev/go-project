@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package post;
+
+// This go_package makes protoc generate code into your go-project/proto folder
+// and importable in Go as "postpb".
+option go_package = "/pkg/proto/post;postpb";
+
+import "google/protobuf/timestamp.proto";
+
+service PostService {
+  // Get user by ID
+  rpc GetPost(GetPostRequest) returns (GetPostResponse);
+  rpc GetPostByUserId(GetPostRequest) returns (GetPostResponse);
+}
+
+message GetPostRequest {
+  string post_id = 1;
+}
+
+message GetPostByUserIdRequest {
+  string user_id = 1;
+}
+
+message GetPostResponse {
+  string id = 1;
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp updated_at = 3;
+
+  // Optional fields
+  google.protobuf.Timestamp deleted_at = 4;
+
+  string content = 5;
+  int64 like_count = 6;
+  int64 repost_count = 7;
+  int64 comment_count = 8;
+
+  repeated string media = 9;
+  repeated string files = 10;
+}
