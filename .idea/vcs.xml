@@ -4,6 +4,7 @@
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/services/denormalizationService" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/services/engagementService" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/services/notificationService" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/services/postService" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/services/userService" vcs="Git" />
   </component>

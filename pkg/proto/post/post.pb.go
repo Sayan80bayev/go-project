@@ -113,16 +113,17 @@ func (x *GetPostByUserIdRequest) GetUserId() string {
 type GetPostResponse struct {
 	state     protoimpl.MessageState `protogen:"open.v1"`
 	Id        string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	UserId    string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	// Optional fields
-	DeletedAt     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=deleted_at,json=deletedAt,proto3" json:"deleted_at,omitempty"`
-	Content       string                 `protobuf:"bytes,5,opt,name=content,proto3" json:"content,omitempty"`
-	LikeCount     int64                  `protobuf:"varint,6,opt,name=like_count,json=likeCount,proto3" json:"like_count,omitempty"`
-	RepostCount   int64                  `protobuf:"varint,7,opt,name=repost_count,json=repostCount,proto3" json:"repost_count,omitempty"`
-	CommentCount  int64                  `protobuf:"varint,8,opt,name=comment_count,json=commentCount,proto3" json:"comment_count,omitempty"`
-	Media         []string               `protobuf:"bytes,9,rep,name=media,proto3" json:"media,omitempty"`
-	Files         []string               `protobuf:"bytes,10,rep,name=files,proto3" json:"files,omitempty"`
+	DeletedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=deleted_at,json=deletedAt,proto3" json:"deleted_at,omitempty"`
+	Content       string                 `protobuf:"bytes,6,opt,name=content,proto3" json:"content,omitempty"`
+	LikeCount     int64                  `protobuf:"varint,7,opt,name=like_count,json=likeCount,proto3" json:"like_count,omitempty"`
+	RepostCount   int64                  `protobuf:"varint,8,opt,name=repost_count,json=repostCount,proto3" json:"repost_count,omitempty"`
+	CommentCount  int64                  `protobuf:"varint,9,opt,name=comment_count,json=commentCount,proto3" json:"comment_count,omitempty"`
+	Media         []string               `protobuf:"bytes,10,rep,name=media,proto3" json:"media,omitempty"`
+	Files         []string               `protobuf:"bytes,11,rep,name=files,proto3" json:"files,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -160,6 +161,13 @@ func (*GetPostResponse) Descriptor() ([]byte, []int) {
 func (x *GetPostResponse) GetId() string {
 	if x != nil {
 		return x.Id
+	}
+	return ""
+}
+
+func (x *GetPostResponse) GetUserId() string {
+	if x != nil {
+		return x.UserId
 	}
 	return ""
 }
@@ -235,23 +243,24 @@ const file_pkg_proto_post_proto_rawDesc = "" +
 	"\x0eGetPostRequest\x12\x17\n" +
 	"\apost_id\x18\x01 \x01(\tR\x06postId\"1\n" +
 	"\x16GetPostByUserIdRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\"\xff\x02\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\"\x98\x03\n" +
 	"\x0fGetPostResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x129\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\x129\n" +
 	"\n" +
-	"created_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"created_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x129\n" +
+	"updated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x129\n" +
 	"\n" +
-	"deleted_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tdeletedAt\x12\x18\n" +
-	"\acontent\x18\x05 \x01(\tR\acontent\x12\x1d\n" +
+	"deleted_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tdeletedAt\x12\x18\n" +
+	"\acontent\x18\x06 \x01(\tR\acontent\x12\x1d\n" +
 	"\n" +
-	"like_count\x18\x06 \x01(\x03R\tlikeCount\x12!\n" +
-	"\frepost_count\x18\a \x01(\x03R\vrepostCount\x12#\n" +
-	"\rcomment_count\x18\b \x01(\x03R\fcommentCount\x12\x14\n" +
-	"\x05media\x18\t \x03(\tR\x05media\x12\x14\n" +
-	"\x05files\x18\n" +
-	" \x03(\tR\x05files2\x85\x01\n" +
+	"like_count\x18\a \x01(\x03R\tlikeCount\x12!\n" +
+	"\frepost_count\x18\b \x01(\x03R\vrepostCount\x12#\n" +
+	"\rcomment_count\x18\t \x01(\x03R\fcommentCount\x12\x14\n" +
+	"\x05media\x18\n" +
+	" \x03(\tR\x05media\x12\x14\n" +
+	"\x05files\x18\v \x03(\tR\x05files2\x85\x01\n" +
 	"\vPostService\x126\n" +
 	"\aGetPost\x12\x14.post.GetPostRequest\x1a\x15.post.GetPostResponse\x12>\n" +
 	"\x0fGetPostByUserId\x12\x14.post.GetPostRequest\x1a\x15.post.GetPostResponseB\x18Z\x16/pkg/proto/post;postpbb\x06proto3"

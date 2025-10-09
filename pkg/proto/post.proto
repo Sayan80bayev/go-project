@@ -24,17 +24,18 @@ message GetPostByUserIdRequest {
 
 message GetPostResponse {
   string id = 1;
-  google.protobuf.Timestamp created_at = 2;
-  google.protobuf.Timestamp updated_at = 3;
+  string user_id = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
 
   // Optional fields
-  google.protobuf.Timestamp deleted_at = 4;
+  google.protobuf.Timestamp deleted_at = 5;
 
-  string content = 5;
-  int64 like_count = 6;
-  int64 repost_count = 7;
-  int64 comment_count = 8;
+  string content = 6;
+  int64 like_count = 7;
+  int64 repost_count = 8;
+  int64 comment_count = 9;
 
-  repeated string media = 9;
-  repeated string files = 10;
+  repeated string media = 10;
+  repeated string files = 11;
 }
