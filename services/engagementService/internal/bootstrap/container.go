@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql" // Import for PostgreSQL
 	"engagementService/internal/config"
+	ms "engagementService/internal/messaging"
 	"engagementService/internal/repository"
 	"engagementService/internal/service"
 	"fmt"
@@ -45,16 +46,16 @@ func Init() (*Container, error) {
 	}
 
 	// Run database migrations
-	if err := runMigrations(db, cfg); err != nil {
-		return nil, fmt.Errorf("failed to run migrations: %w", err)
-	}
+	//if err := runMigrations(db, cfg); err != nil {
+	//	return nil, fmt.Errorf("failed to run migrations: %w", err)
+	//}
 
 	cacheService, err := initRedis(cfg)
 	if err != nil {
 		return nil, err
 	}
 
-	producer, err := messaging.NewKafkaProducer(cfg.KafkaBrokers[0], cfg.KafkaProducerTopic)
+	producer, err := initRabbitMQProducer(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create Kafka producer: %w", err)
 	}
@@ -66,21 +67,14 @@ func Init() (*Container, error) {
 	likeRepo := repository.NewPostgresLikeRepo(db)
 	likeService := service.NewLikeService(likeRepo)
 
-	//consumer, err := initKafkaConsumer(cfg, fileStorage, userRepository)
-	//if err != nil {
-	//	return nil, err
-	//}
-
 	jwksURL := buildJWKSURL(cfg)
 
-	logger.Info("✅ Dependencies initialized successfully")
-	// Wait for shutdown signal
+	logger.Info("Dependencies initialized successfully")
 
 	return &Container{
-		DB:       db,
-		Redis:    cacheService,
-		Producer: producer,
-		//Consumer:            consumer,
+		DB:                  db,
+		Redis:               cacheService,
+		Producer:            producer,
 		Config:              cfg,
 		JWKSUrl:             jwksURL,
 		SubscriptionService: subService,
@@ -159,25 +153,27 @@ func initRedis(cfg *config.Config) (*caching.RedisService, error) {
 	return redisCache, nil
 }
 
-//func initKafkaConsumer(cfg *config.Config, fileStorage storage.FileStorage, repo service.UserRepository) (messaging.Consumer, error) {
-//	consumer, err := messaging.NewKafkaConsumer(messaging.ConsumerConfig{
-//		BootstrapServers: cfg.KafkaBrokers[0],
-//		GroupID:          cfg.KafkaConsumerGroup,
-//		Topics:           cfg.KafkaConsumerTopics,
-//	})
-//	if err != nil {
-//		return nil, fmt.Errorf("kafka consumer init failed: %w", err)
-//	}
-//
-//	// Use typed event constants
-//	consumer.RegisterHandler(events.UserCreated, service.CreateUserHandler(repo))
-//	consumer.RegisterHandler(events.UserUpdated, service.UserUpdatedHandler(fileStorage))
-//	consumer.RegisterHandler(events.UserDeleted, service.UserDeletedHandler(fileStorage))
-//
-//	logging.GetLogger().Infof("Kafka consumer initialized")
-//	return consumer, nil
-//}
+func initRabbitMQProducer(cfg *config.Config) (messaging.Producer, error) {
+	logger := logging.GetLogger()
+	ampq := buildAmqpURL(cfg)
+	prod, err := ms.NewRabbitProducer(ampq, cfg.RabbitMQExchange, logger)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create AMQP producer: %w", err)
+	}
+	logger.Info("RabbitMQ producer created")
+
+	return prod, nil
+}
 
 func buildJWKSURL(cfg *config.Config) string {
 	return fmt.Sprintf("%s/realms/%s/protocol/openid-connect/certs", cfg.KeycloakURL, cfg.KeycloakRealm)
+}
+
+func buildAmqpURL(cfg *config.Config) string {
+	return fmt.Sprintf("amqp://%s:%s@%s:%s/",
+		cfg.RabbitMQUser,
+		cfg.RabbitMQPassword,
+		cfg.RabbitMQHost,
+		cfg.RabbitMQPort,
+	)
 }

@@ -11,12 +11,15 @@ type Config struct {
 	RedisAddr string `mapstructure:"REDIS_ADDR"`
 	RedisPass string `mapstructure:"REDIS_PASS"`
 
-	KafkaBrokers        []string `mapstructure:"KAFKA_BROKERS"`
-	KafkaTopic          string   `mapstructure:"KAFKA_TOPIC"`
-	KafkaProducerTopic  string   `mapstructure:"KAFKA_PRODUCER_TOPIC"`
-	KafkaConsumerGroup  string   `mapstructure:"KAFKA_CONSUMER_GROUP"`
-	KafkaConsumerTopics []string `mapstructure:"KAFKA_CONSUMER_TOPICS"`
-	
+	RabbitMQUser       string `mapstructure:"RABBIT_MQ_USER"`
+	RabbitMQPassword   string `mapstructure:"RABBIT_MQ_PASSWORD"`
+	RabbitMQHost       string `mapstructure:"RABBIT_MQ_HOST"`
+	RabbitMQPort       string `mapstructure:"RABBIT_MQ_PORT"`
+	RabbitMQVHost      string `mapstructure:"RABBIT_MQ_VHOST"`
+	RabbitMQQueue      string `mapstructure:"RABBIT_MQ_QUEUE"`
+	RabbitMQExchange   string `mapstructure:"RABBIT_MQ_EXCHANGE"`
+	RabbitMQRoutingKey string `mapstructure:"RABBIT_MQ_ROUTING_KEY"`
+
 	KeycloakURL   string `mapstructure:"KEYCLOAK_URL"`
 	KeycloakRealm string `mapstructure:"KEYCLOAK_REALM"`
 

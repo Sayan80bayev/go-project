@@ -1,0 +1,10 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: post-service-pdb
+  namespace: go-project
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: post-service

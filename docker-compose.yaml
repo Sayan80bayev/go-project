@@ -224,26 +224,19 @@ services:
     networks:
       - go-project
 
-#  auth_service:
-#    build:
-#      context: ./services/authService-keycloack
-#      dockerfile: Dockerfile
-#    container_name: auth_service
-#    ports:
-#      - "8082:8082"
-#    env_file:
-#      - .env
-#    depends_on:
-#      - keycloak
-#    environment:
-#      PORT: ${AUTH_SERVICE_PORT}
-#      KEYCLOAK_URL: ${KEYCLOAK_URL}
-#      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
-#      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
-#      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
-#      KEYCLOAK_CERT_PATH: ${KEYCLOAK_CERT_PATH}
-#    networks:
-#      - go-project
+  rabbit_mq:
+    image: rabbitmq:4.1.5-management-alpine
+    container_name: rabbit_mq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - go-project
+    environment:
+      RABBITMQ_DEFAULT_USER: sayan
+      RABBITMQ_DEFAULT_PASS: password
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
 
   mongodb:
     image: mongo:6.0
@@ -259,6 +252,7 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: mongopass
 
 volumes:
+  rabbitmq-data:
   pgdata:
   keycloak-pgdata:
   minio-data:

@@ -5,19 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="78567a34-ba12-486e-a753-832190f3d9a3" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/6bf331e8-220b-4c96-be6c-71fbf999ced7.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/6bf331e8-220b-4c96-be6c-71fbf999ced7.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/6bf331e8-220b-4c96-be6c-71fbf999ced7/storage_v2/_src_/database/engagement_db.frziuw/schema/information_schema.FNRwLQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/6bf331e8-220b-4c96-be6c-71fbf999ced7/storage_v2/_src_/database/engagement_db.frziuw/schema/information_schema.FNRwLQ.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/6bf331e8-220b-4c96-be6c-71fbf999ced7/storage_v2/_src_/database/engagement_db.frziuw/schema/pg_catalog.0S1ZNQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/6bf331e8-220b-4c96-be6c-71fbf999ced7/storage_v2/_src_/database/engagement_db.frziuw/schema/pg_catalog.0S1ZNQ.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/6bf331e8-220b-4c96-be6c-71fbf999ced7/storage_v2/_src_/database/engagement_db.frziuw/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/6bf331e8-220b-4c96-be6c-71fbf999ced7/storage_v2/_src_/database/engagement_db.frziuw/schema/public.abK9xQ.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/6bf331e8-220b-4c96-be6c-71fbf999ced7/storage_v2/_src_/database/postgres.edMnLQ/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/6bf331e8-220b-4c96-be6c-71fbf999ced7/storage_v2/_src_/database/postgres.edMnLQ/schema/public.abK9xQ.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go File" />
+      </list>
+    </option>
   </component>
   <component name="GOROOT" url="file://$USER_HOME$/go/pkg/mod/golang.org/toolchain@v0.0.1-go1.24.6.darwin-arm64" />
   <component name="Git.Settings">
@@ -39,12 +39,17 @@
   &quot;associatedIndex&quot;: 3
 }</component>
   <component name="ProjectId" id="33Xn8wPmdQC1YnzgppCYfXNupPG" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;Go Build.go build engagementService/cmd/server.executor&quot;: &quot;Run&quot;,
     &quot;Makefile Target.migrate-create.executor&quot;: &quot;Run&quot;,
     &quot;Makefile Target.migrate-down.executor&quot;: &quot;Run&quot;,
     &quot;Makefile Target.migrate-status.executor&quot;: &quot;Run&quot;,
@@ -72,7 +77,28 @@
     ]
   }
 }</component>
-  <component name="RunManager" selected="Makefile Target.migrate-status">
+  <component name="RunManager" selected="Go Build.go build engagementService/cmd/server">
+    <configuration name="go build engagementService/cmd/server" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="engagementService" />
+      <working_directory value="$PROJECT_DIR$" />
+      <EXTENSION ID="net.ashald.envfile">
+        <option name="IS_ENABLED" value="true" />
+        <option name="IS_SUBST" value="false" />
+        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+        <option name="IS_IGNORE_MISSING_FILES" value="false" />
+        <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+        <ENTRIES>
+          <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
+          <ENTRY IS_ENABLED="false" PARSER="env" IS_EXECUTABLE="false" PATH="$PROJECT_DIR$/../notificationService/.env" />
+          <ENTRY IS_ENABLED="true" PARSER="env" IS_EXECUTABLE="false" PATH=".env" />
+        </ENTRIES>
+      </EXTENSION>
+      <kind value="PACKAGE" />
+      <package value="engagementService/cmd/server" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/cmd/server/main.go" />
+      <method v="2" />
+    </configuration>
     <configuration name="migrate-create" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile" temporary="true">
       <makefile filename="$PROJECT_DIR$/Makefile" target="migrate-create" workingDirectory="" arguments="">
         <envs />
@@ -97,8 +123,16 @@
       </makefile>
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Go Build.go build engagementService/cmd/server" />
+      <item itemvalue="Makefile Target.migrate-create" />
+      <item itemvalue="Makefile Target.migrate-down" />
+      <item itemvalue="Makefile Target.migrate-status" />
+      <item itemvalue="Makefile Target.migrate-up" />
+    </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Build.go build engagementService/cmd/server" />
         <item itemvalue="Makefile Target.migrate-status" />
         <item itemvalue="Makefile Target.migrate-down" />
         <item itemvalue="Makefile Target.migrate-create" />

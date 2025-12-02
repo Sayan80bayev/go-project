@@ -1,0 +1,38 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: post-service-hpa
+  namespace: go-project
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: post-service
+  minReplicas: 2
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 200
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 5
+      policies:
+        - type: Pods
+          value: 4
+          periodSeconds: 60
+        - type: Percent
+          value: 200
+          periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Percent
+          value: 140
+          periodSeconds: 1
+        - type: Pods
+          value: 100
+          periodSeconds: 1
