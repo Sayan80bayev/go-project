@@ -9,14 +9,14 @@ spec:
     kind: Deployment
     name: post-service
   minReplicas: 2
-  maxReplicas: 3
+  maxReplicas: 4
   metrics:
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 200
+          averageUtilization: 70
   behavior:
     scaleUp:
       stabilizationWindowSeconds: 5
@@ -25,13 +25,13 @@ spec:
           value: 4
           periodSeconds: 60
         - type: Percent
-          value: 200
+          value: 70
           periodSeconds: 60
     scaleDown:
       stabilizationWindowSeconds: 0
       policies:
         - type: Percent
-          value: 140
+          value: 65
           periodSeconds: 1
         - type: Pods
           value: 100
