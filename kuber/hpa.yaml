@@ -9,7 +9,7 @@ spec:
     kind: Deployment
     name: post-service
   minReplicas: 2
-  maxReplicas: 4
+  maxReplicas: 3
   metrics:
     - type: Resource
       resource:
@@ -22,7 +22,7 @@ spec:
       stabilizationWindowSeconds: 5
       policies:
         - type: Pods
-          value: 4
+          value: 3
           periodSeconds: 60
         - type: Percent
           value: 70
@@ -31,7 +31,7 @@ spec:
       stabilizationWindowSeconds: 0
       policies:
         - type: Percent
-          value: 65
+          value: 70
           periodSeconds: 1
         - type: Pods
           value: 100

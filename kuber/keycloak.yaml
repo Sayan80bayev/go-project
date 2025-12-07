@@ -17,6 +17,13 @@ spec:
         - name: keycloak
           image: quay.io/keycloak/keycloak:26.3.1
           args: ["start-dev"]
+          resources:
+            requests:
+              cpu: "0.25"
+              memory: "512Mi"
+            limits:
+              cpu: "0.5"
+              memory: "1024Mi"
           ports:
             - containerPort: 8080
             - containerPort: 8443

@@ -8,7 +8,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 10Gi
+      storage: 1Gi
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -29,13 +29,19 @@ spec:
     spec:
       containers:
         - name: minio
-          image: minio/minio:RELEASE.2025-04-22T22-12-26Z   # твоя точная версия
+          image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+          resources:
+            requests:
+              cpu: "0.25"
+              memory: "256Mi"
+            limits:
+              cpu: "0.5"
+              memory: "512Mi"
           args:
             - server
             - /data
             - --console-address
             - ":9090"
-          ports:
           env:
             - name: MINIO_ROOT_USER
               value: admin

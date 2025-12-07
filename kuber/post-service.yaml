@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: post-service
-          image: sayansayan123/go-project-post-service:1.0
+          image: sayansayan123/go-project-post-service:1.1
           ports:
             - containerPort: 8089
           env:
@@ -55,11 +55,11 @@ spec:
 
           resources:
             requests:
-              cpu: "1200m"
-              memory: "256Mi"
+              cpu: "100"
+              memory: "128Mi"
             limits:
-              cpu: "1600m"
-              memory: "512Mi"
+              cpu: "200"
+              memory: "256Mi"
 
 ---
 apiVersion: v1
