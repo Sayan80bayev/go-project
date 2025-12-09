@@ -29,3 +29,14 @@ spec:
                 name: keycloak
                 port:
                   number: 8080
+
+    - host: grafana.go-project.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana
+                port:
+                  number: 3000
