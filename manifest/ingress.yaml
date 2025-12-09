@@ -18,3 +18,14 @@ spec:
                 name: post-service
                 port:
                   number: 8089
+
+    - host: keycloak.go-project.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: keycloak
+                port:
+                  number: 8080
